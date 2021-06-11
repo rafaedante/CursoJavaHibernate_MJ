@@ -5,12 +5,16 @@
  */
 package eduit.jpa.dao;
 
+import eduit.jpa.dto.PersonaDTO;
 import eduit.jpa.entidades.Persona;
 
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import org.springframework.stereotype.Service;
 
 /**
@@ -50,6 +54,21 @@ public class PersonaDAOImpl {
     
     public List getAllApellidosMayuscula() {
         return em.createQuery("SELECT UPPER(p.apellido) FROM Persona p").getResultList();
+    }
+    
+    public List<PersonaDTO> getPersonaDTO() {
+        return em.createQuery("SELECT new eduit.jpa.dto.PersonaDTO(p.nombre, p.id) FROM Persona p"
+                , PersonaDTO.class).getResultList();
+    }
+    
+    public List<Persona> findByEdad(int edad) {
+        CriteriaBuilder builder = em.getCriteriaBuilder();
+        CriteriaQuery<Persona> criteria = builder.createQuery(Persona.class);
+        Root<Persona> root = criteria.from(Persona.class);
+        
+        criteria.where(builder.equal(root.get("edad"), edad));
+        
+        return em.createQuery(criteria).getResultList();
     }
     
 }
